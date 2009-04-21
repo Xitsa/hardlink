@@ -1,0 +1,231 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\HardLink.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\HardLink.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 235, 55
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION |
+    WS_SYSMENU
+CAPTION "About HardLink"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "HardLink Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2005",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,16,WS_GROUP
+END
+
+IDD_HARDLINK_DIALOG DIALOGEX 0, 0, 391, 230
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE |
+    WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "HardLink"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    GROUPBOX        " Copy Folder Files as Hard Links ",IDC_STATIC,6,6,378,
+                    72,WS_GROUP
+    LTEXT           "From:",IDC_STATIC,12,18,30,8
+    EDITTEXT        IDC_COPY_FROM,54,18,264,14,ES_AUTOHSCROLL | WS_GROUP
+    PUSHBUTTON      "Browse...",IDC_COPY_FROM_BROWSE,328,18,50,14,WS_GROUP
+    LTEXT           "To:",IDC_STATIC,12,36,30,8
+    EDITTEXT        IDC_COPY_TO,54,36,264,14,ES_AUTOHSCROLL | WS_GROUP
+    PUSHBUTTON      "Browse...",IDC_COPY_TO_BROWSE,328,36,50,14,WS_GROUP
+    PUSHBUTTON      "Copy",IDC_DOCOPY,56,54,78,14,WS_GROUP
+    PUSHBUTTON      "Clean Target",IDC_DOCLEAN_COPY,300,54,78,14,WS_GROUP
+    GROUPBOX        " Split Folder Files as Hard Links ",IDC_STATIC,6,82,378,
+                    72,WS_GROUP
+    LTEXT           "From:",IDC_STATIC,12,96,30,8
+    EDITTEXT        IDC_SPLIT_FROM,54,94,264,14,ES_AUTOHSCROLL | WS_GROUP
+    PUSHBUTTON      "Browse...",IDC_SPLIT_FROM_BROWSE,328,94,50,14,WS_GROUP
+    LTEXT           "To:",IDC_STATIC,12,114,30,8
+    EDITTEXT        IDC_SPLIT_TO,54,112,264,14,ES_AUTOHSCROLL | WS_GROUP
+    PUSHBUTTON      "Browse...",IDC_SPLIT_TO_BROWSE,328,112,50,14,WS_GROUP
+    PUSHBUTTON      "Split",IDC_DOSPLIT,54,132,78,14,WS_GROUP
+    LTEXT           " into ",IDC_STATIC,138,134,18,8
+    COMBOBOX        IDC_SPLITSIZE,166,132,72,150,CBS_DROPDOWN | WS_VSCROLL |
+                    WS_GROUP | WS_TABSTOP
+    PUSHBUTTON      "Clean Target",IDC_DOCLEAN_SPLIT,300,132,78,14,WS_GROUP
+    EDITTEXT        IDC_LOG,8,160,284,64,ES_MULTILINE | ES_AUTOVSCROLL |
+                    ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_GROUP
+    PUSHBUTTON      "Quit",IDCANCEL,300,160,78,16,WS_GROUP
+    LTEXT           " MB ",IDC_STATIC,244,134,15,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "No name"
+            VALUE "FileDescription", "A small utility to split folder to fit desired size"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "HardLink.exe"
+            VALUE "LegalCopyright", "GPLv2.0"
+            VALUE "OriginalFilename", "HardLink.exe"
+            VALUE "ProductName", "HardLink"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_HARDLINK_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 384
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 223
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_MANIFEST
+//
+
+IDR_MANIFEST            RT_MANIFEST             "res\\HardLink.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_ABOUTBOX            "&About HardLink..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\HardLink.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
