@@ -9,6 +9,7 @@
 #include <direct.h>
 #include <string.h>
 #include <search.h>
+#include "Strategy.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -70,6 +71,7 @@ END_MESSAGE_MAP()
 
 CHardLinkDlg::CHardLinkDlg(CWnd* pParent /*=NULL*/)
     : CDialog(CHardLinkDlg::IDD, pParent)
+	, m_NotFitBehaviour(enfbStop)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -296,16 +298,16 @@ void CHardLinkDlg::OnBnClickedDoCopy()
     }
 
     cs.Format(_T("Copying folder %s to %s ..."), csSrc, csDst);
-    Log(_T(""));
-    Log(cs);
+    LogImpl(_T(""));
+    LogImpl(cs);
 
     if (DoCopyDir(csSrc, csDst))
     {
-        Log(_T("Completed copying."));
+        LogImpl(_T("Completed copying."));
     }
     else
     {
-        Log(_T("Failed to copy."));
+        LogImpl(_T("Failed to copy."));
     }
 }
 
@@ -582,7 +584,6 @@ void CHardLinkDlg::OnBnClickedDoSplit()
     TCHAR fsname[100];
     ULONG64 totalsize = 0;
     size_t dvdsize_mb;
-    int ndisks;
     CBusyCursor cursor(& m_pCursor);
     cursor.busy();
     GetDlgItem(IDC_SPLIT_FROM)->GetWindowText(csSrc);
@@ -642,60 +643,38 @@ void CHardLinkDlg::OnBnClickedDoSplit()
 
     if (! ReadSplitSizeControl(& dvdsize_mb))
         return;
-    m_dvdsize = dvdsize_mb;
-    m_dvdsize *= 1024;
-    m_dvdsize *= 1024;
+    ULONG64 dvdsize = dvdsize_mb;
+    dvdsize *= 1024;
+    dvdsize *= 1024;
 
     // compute total size
     cs.Format(_T("Scanning source folder %s ..."), csSrc);
-    Log(_T(""));
-    Log(cs);
+    LogImpl(_T(""));
+    LogImpl(cs);
     if (! GetFolderSize(csSrc, & totalsize, DVDBLKSIZE))
         return;
 
-    ndisks = (int) ((totalsize + m_dvdsize - 1) / m_dvdsize);
-    ndisks = max(ndisks, 1);
-    cs.Format(_T("Estimated approximate number of disks required is %d"), ndisks);
-    Log(cs);
-    m_nDigits = 1;
-    if (ndisks < 9)
-        m_nDigits = 1;
-    else if (ndisks >= 9)
-        m_nDigits = 2;
-    else if (ndisks >= 90)
-        m_nDigits = 3;
-    else if (ndisks >= 900)
-        m_nDigits = 4;
-    else if (ndisks >= 9000)
-        m_nDigits = 5;
-    else
-        m_nDigits = 6;
+	CAutoPtr<IFileDisposition> FileDispostion(GetFileDisposition(efdsMaxFit, totalsize, dvdsize, this));
+
+	m_NotFitBehaviour = enfbToOversized;
 
     cs.Format(_T("Splitting folder %s to %s ..."), csSrc, csDst);
-    Log(cs);
+    LogImpl(cs);
 
     m_csSrcRootDir = csSrc;
     m_csDstRootDir = csDst;
-    m_nDiskNumber = 1;
-    m_csDiskDirName = ComposeDiskDirName(m_nDiskNumber, m_nDigits);
-    m_ulUsedDiskSpace = 0;
 
-    BOOL bPrintStartMsg = TRUE;
-    if (DoSplitDir(_T(""), bPrintStartMsg))
+    if (DoSplitDir(_T(""), FileDispostion))
     {
-        double fpct = (double) m_ulUsedDiskSpace / (double) m_dvdsize;
-        int pct = (int) (fpct * 100);
-        pct = min(max(1, pct), 100);
-        cs.Format(_T("Completed splitting into %d disks, last disk is %d%% full."), m_nDiskNumber, pct);
-        Log(cs);
+        LogImpl(FileDispostion->GetFinalStatistics());
     }
     else
     {
-        Log(_T("FAILED TO SPLIT."));
+        LogImpl(_T("FAILED TO SPLIT."));
     }
 }
 
-BOOL CHardLinkDlg::DoSplitDir(LPCTSTR subdir, BOOL& rbPrintStartMsg)
+BOOL CHardLinkDlg::DoSplitDir(LPCTSTR subdir, IFileDisposition* fileDisposition)
 {
     HANDLE hFind = INVALID_HANDLE_VALUE;
     WIN32_FIND_DATA ff;
@@ -706,7 +685,7 @@ BOOL CHardLinkDlg::DoSplitDir(LPCTSTR subdir, BOOL& rbPrintStartMsg)
     CVStringArray aDirs;
     CVFindDataArray aFiles;
     int k;
-    BOOL createDstFolder = TRUE;
+    bool createDstFolder = true;
 
     memset(&ff, 0, sizeof ff);
     csDir = m_csSrcRootDir;
@@ -759,15 +738,11 @@ BOOL CHardLinkDlg::DoSplitDir(LPCTSTR subdir, BOOL& rbPrintStartMsg)
     // process files
     for (k = 0;  k < aFiles.GetCount();  k++)
     {
-        if (rbPrintStartMsg)
-        {
-            csError.Format(_T("Creating disk %d ..."), m_nDiskNumber);
-            Log(csError);
-            rbPrintStartMsg = FALSE;
-        }
 
         ff = aFiles.GetAt(k);
         ULONG64 filesize = GetFileSize(ff, DVDBLKSIZE);
+		fileDisposition->ProcessFile(filesize);
+		createDstFolder = createDstFolder || fileDisposition->IsNeedCreateOrCheck();
 
         CString csSrcPath;
         csSrcPath = m_csSrcRootDir;
@@ -779,28 +754,27 @@ BOOL CHardLinkDlg::DoSplitDir(LPCTSTR subdir, BOOL& rbPrintStartMsg)
         }
         csSrcPath += ff.cFileName;
 
-        if (filesize > m_dvdsize)
+        if (fileDisposition->IsDontFit())
         {
-            csError.Format(_T("File %s exceeds specified disk size and cannot fit on a disk."), csSrcPath);
-            Error(csError);
-            CHECK(FALSE);
-        }
-
-        if (m_ulUsedDiskSpace + filesize > m_dvdsize)
-        {
-            // switch to the next disk
-            m_nDiskNumber++;
-            m_csDiskDirName = ComposeDiskDirName(m_nDiskNumber, m_nDigits);
-            m_ulUsedDiskSpace = 0;
-            createDstFolder = TRUE;
-            csError.Format(_T("Creating disk %d ..."), m_nDiskNumber);
-            Log(csError);
+			switch (m_NotFitBehaviour)
+			{
+			case enfbStop:
+				csError.Format(_T("File %s exceeds specified disk size and cannot fit on a disk."), csSrcPath);
+				Error(csError);
+				CHECK(FALSE);
+				break;
+			case enfbWarn:
+				csError.Format(_T("File %s exceeds specified disk size and cannot fit on a disk."), csSrcPath);
+				LogImpl(csError);
+				continue;
+				break;
+			}
         }
 
         CString csDstPath;
         csDstPath = m_csDstRootDir;
         if (lastchar(csDstPath) != _T('\\'))  csDstPath += _T('\\');
-        csDstPath += m_csDiskDirName;
+        csDstPath += fileDisposition->GetDestination();
         csDstPath += _T('\\');
         if (_tcslen(subdir) > 0)
         {
@@ -809,7 +783,7 @@ BOOL CHardLinkDlg::DoSplitDir(LPCTSTR subdir, BOOL& rbPrintStartMsg)
         if (createDstFolder)
         {
             CheckOrMakeDir(csDstPath, TRUE);
-            createDstFolder = FALSE;
+            createDstFolder = false;
         }
 
         if (_tcslen(subdir) > 0)
@@ -825,8 +799,6 @@ BOOL CHardLinkDlg::DoSplitDir(LPCTSTR subdir, BOOL& rbPrintStartMsg)
             SysError(csError, dwError);
             CHECK(FALSE);
         }
-
-        m_ulUsedDiskSpace += filesize;
     }
 
     // process subfolders
@@ -835,7 +807,7 @@ BOOL CHardLinkDlg::DoSplitDir(LPCTSTR subdir, BOOL& rbPrintStartMsg)
         csDir = subdir;
         if (lastchar(csDir) != _T('\\'))  csDir += _T('\\');
         csDir += aDirs.GetAt(k);
-        CHECK(DoSplitDir(csDir, rbPrintStartMsg));
+        CHECK(DoSplitDir(csDir, fileDisposition));
     }
 
 completed:
@@ -964,7 +936,7 @@ void CHardLinkDlg::ParseBaseAndNumber(LPCTSTR cp, CString& csBase, int* pnumber)
     for (;;)
     {
         if (xp < cp)  break;
-        if (! isdigit(*xp)) break;
+        if (! _istdigit(*xp)) break;
         xp--;
     }
 
@@ -1118,7 +1090,7 @@ BOOL CHardLinkDlg::ReadSplitSizeControl(size_t* psize)
         size = size * 10 + (*cp++ - _T('0'));
     }
 
-    if (size < 80)
+    if (size < 10)
     {
         Error(_T("Invalid selected split size: too small."));
         return FALSE;
@@ -1199,17 +1171,17 @@ void CHardLinkDlg::CleanDir(int idc)
     {
         if (m_pCursor) m_pCursor->resume(hCursor);
         cs2.Format(_T("Cleaning data from folder %s ..."), cs);
-        Log(_T(""));
-        Log(cs2);
+        LogImpl(_T(""));
+        LogImpl(cs2);
         if (DoCleanDir(cs))
         {
             cs2.Format(_T("Cleaned data from folder %s."), cs);
-            Log(cs2);
+            LogImpl(cs2);
         }
         else
         {
             cs2.Format(_T("Failed to clean data from folder %s."), cs);
-            Log(cs2);
+            LogImpl(cs2);
         }
     }
     else
@@ -1301,7 +1273,7 @@ void CHardLinkDlg::SysError(LPCTSTR errmsg, DWORD dwError)
     Error(cs);
 }
 
-void CHardLinkDlg::Log(LPCTSTR cp)
+void CHardLinkDlg::LogImpl(LPCTSTR cp)
 {
     CString cs;
     GetDlgItem(IDC_LOG)->GetWindowText(cs);

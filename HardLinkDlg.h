@@ -2,6 +2,7 @@
 //
 
 #pragma once
+#include "Strategy.h"
 
 class CVFindDataArray;
 class CVStringArray;
@@ -71,11 +72,16 @@ public:
 
 
 // CHardLinkDlg dialog
-class CHardLinkDlg : public CDialog
+class CHardLinkDlg : public CDialog, public ILogger
 {
 // Construction
 public:
     CHardLinkDlg(CWnd* pParent = NULL); // standard constructor
+
+	virtual void Log(CString message)
+	{
+		LogImpl(message);
+	}
 
 // Dialog Data
     enum { IDD = IDD_HARDLINK_DIALOG };
@@ -87,12 +93,8 @@ public:
 private:
     CString m_csSrcRootDir;
     CString m_csDstRootDir;
-    int m_nDiskNumber;
-    int m_nDigits;
-    CString m_csDiskDirName;
-    ULONG64 m_ulUsedDiskSpace;
-    ULONG64 m_dvdsize;
     CBusyCursor* m_pCursor;
+	ENotFitBehaviour m_NotFitBehaviour;
 
 private:
     void BrowseDir(int idc);
@@ -102,7 +104,7 @@ private:
     void Error(LPCTSTR cp);
     TCHAR lastchar(LPCTSTR cp);
     BOOL DoCleanDir(LPCTSTR dirname);
-    void Log(LPCTSTR cp);
+    void LogImpl(LPCTSTR cp);
     BOOL DoCopyDir(LPCTSTR srcdir, LPCTSTR dstdir);
     BOOL IsDirExists(LPCTSTR dir);
     BOOL CheckOrMakeDir(LPCTSTR dir, BOOL force = FALSE);
@@ -112,7 +114,7 @@ private:
     BOOL ReadConfiguration();
     BOOL SaveConfiguration();
     BOOL GetFolderSize(LPCTSTR dir, ULONG64* totalsize, size_t blksize);
-    BOOL DoSplitDir(LPCTSTR subdir, BOOL& rbPrintStartMsg);
+    BOOL DoSplitDir(LPCTSTR subdir, IFileDisposition* fileDisposition);
     BOOL ReadSplitSizeControl(size_t* psize);
     CString ComposeDiskDirName(int nDiskNumber, int nDigits);
     ULONG64 GetFileSize(const WIN32_FIND_DATA& ff, size_t blksize);
