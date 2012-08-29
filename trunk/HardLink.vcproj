@@ -155,6 +155,9 @@
 						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\Strategy.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -176,6 +179,9 @@
 			</File>
 			<File
 				RelativePath="stdafx.h">
+			</File>
+			<File
+				RelativePath=".\Strategy.h">
 			</File>
 		</Filter>
 		<Filter
