@@ -94,6 +94,7 @@ private:
     CString m_csSrcRootDir;
     CString m_csDstRootDir;
     CBusyCursor* m_pCursor;
+	EFileDispositionStrategy m_FileDispositionStrategy;
 	ENotFitBehaviour m_NotFitBehaviour;
 
 private:
@@ -157,4 +158,5 @@ public:
     afx_msg void OnEnChangeSplitTo();
     afx_msg void OnBnClickedSplitToBrowse();
     afx_msg void OnCbnSelchangeSplitsize();
+	afx_msg void OnBnClickedSplitOptions();
 };

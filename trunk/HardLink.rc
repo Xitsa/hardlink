@@ -116,8 +116,31 @@ BEGIN
     PUSHBUTTON      "Clean Target",IDC_DOCLEAN_SPLIT,300,132,78,14,WS_GROUP
     EDITTEXT        IDC_LOG,8,160,284,64,ES_MULTILINE | ES_AUTOVSCROLL |
                     ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_GROUP
-    PUSHBUTTON      "Quit",IDCANCEL,300,160,78,16,WS_GROUP
+    PUSHBUTTON      "Quit",IDCANCEL,300,207,78,16,WS_GROUP
     LTEXT           " MB ",IDC_STATIC,244,134,15,8
+    PUSHBUTTON      "Options",IDC_BTN_OPTIONS,300,160,78,16
+END
+
+IDD_SPLIT_OPTIONS DIALOGEX 0, 0, 166, 158
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION |
+    WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,23,137,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,109,137,50,14
+    GROUPBOX        "File disposition aims for",IDC_STATIC,23,20,128,43
+    GROUPBOX        "If file doesn't fit …",IDC_STATIC,23,71,128,56
+    CONTROL         "Logical structure",IDC_LOGICAL_STRUCTURE,"Button",
+                    BS_AUTORADIOBUTTON|WS_GROUP,33,33,71,10
+    CONTROL         "Maximum packing",IDC_MAXIMUM_PACKING,"Button",
+                    BS_AUTORADIOBUTTON,33,44,71,10
+    CONTROL         "stop process",IDC_OS_STOP,"Button",BS_AUTORADIOBUTTON|WS_GROUP,
+                    33,84,57,10
+    CONTROL         "warn and continue",IDC_OS_WARN,"Button",
+                    BS_AUTORADIOBUTTON,33,95,71,10
+    CONTROL         "copy to ""Oversized""",IDC_OS_OVERSIZED,"Button",
+                    BS_AUTORADIOBUTTON,33,106,81,10
 END
 
 
@@ -182,6 +205,14 @@ BEGIN
         RIGHTMARGIN, 384
         TOPMARGIN, 7
         BOTTOMMARGIN, 223
+    END
+
+    IDD_SPLIT_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 159
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 151
     END
 END
 #endif    // APSTUDIO_INVOKED

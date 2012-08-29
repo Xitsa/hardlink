@@ -141,6 +141,9 @@
 				RelativePath="MyFolderDialog.cpp">
 			</File>
 			<File
+				RelativePath=".\SplitOptions.cpp">
+			</File>
+			<File
 				RelativePath="stdafx.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -176,6 +179,9 @@
 			</File>
 			<File
 				RelativePath="Resource.h">
+			</File>
+			<File
+				RelativePath=".\SplitOptions.h">
 			</File>
 			<File
 				RelativePath="stdafx.h">

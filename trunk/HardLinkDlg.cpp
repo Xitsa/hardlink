@@ -10,6 +10,7 @@
 #include <string.h>
 #include <search.h>
 #include "Strategy.h"
+#include "SplitOptions.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -71,7 +72,8 @@ END_MESSAGE_MAP()
 
 CHardLinkDlg::CHardLinkDlg(CWnd* pParent /*=NULL*/)
     : CDialog(CHardLinkDlg::IDD, pParent)
-	, m_NotFitBehaviour(enfbStop)
+	, m_NotFitBehaviour(enfbToOversized)
+	, m_FileDispositionStrategy(efdsMaxFit)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -110,6 +112,7 @@ BEGIN_MESSAGE_MAP(CHardLinkDlg, CDialog)
     ON_EN_CHANGE(IDC_SPLIT_TO, OnEnChangeSplitTo)
     ON_BN_CLICKED(IDC_SPLIT_TO_BROWSE, OnBnClickedSplitToBrowse)
     ON_CBN_SELCHANGE(IDC_SPLITSIZE, OnCbnSelchangeSplitsize)
+	ON_BN_CLICKED(IDC_BTN_OPTIONS, OnBnClickedSplitOptions)
 END_MESSAGE_MAP()
 
 
@@ -654,9 +657,8 @@ void CHardLinkDlg::OnBnClickedDoSplit()
     if (! GetFolderSize(csSrc, & totalsize, DVDBLKSIZE))
         return;
 
-	CAutoPtr<IFileDisposition> FileDispostion(GetFileDisposition(efdsMaxFit, totalsize, dvdsize, this));
+	CAutoPtr<IFileDisposition> FileDispostion(GetFileDisposition(m_FileDispositionStrategy, totalsize, dvdsize, this));
 
-	m_NotFitBehaviour = enfbToOversized;
 
     cs.Format(_T("Splitting folder %s to %s ..."), csSrc, csDst);
     LogImpl(cs);
@@ -1112,6 +1114,16 @@ void CHardLinkDlg::OnCbnSelchangeCombo1()
     // TODO: Add your control notification handler code here
 }
 
+void CHardLinkDlg::OnBnClickedSplitOptions()
+{
+	CSplitOptions SO(m_FileDispositionStrategy, m_NotFitBehaviour, this);
+	if (SO.DoModal() == IDOK)
+	{
+		m_FileDispositionStrategy = SO.GetStrategy();
+		m_NotFitBehaviour = SO.GetNotFitBehaviour();
+	}
+}
+
 void CHardLinkDlg::OnBnClickedDoCleanSplit()
 {
     CBusyCursor cursor(& m_pCursor);
@@ -1453,6 +1465,26 @@ BOOL CHardLinkDlg::ReadConfiguration()
         pcombo->SetCurSel(pcombo->AddString(csSelected));
     }
 
+	CString FileDisposition;
+	if (ReadValue(_T("FileDisposition"), FileDisposition))
+	{
+		int num = _ttoi(FileDisposition);
+		if (1 == (num / 1000))
+			m_FileDispositionStrategy = efdsLogical;
+		else
+			m_FileDispositionStrategy = efdsMaxFit;
+		if (1 == (num % 1000))
+			m_NotFitBehaviour = enfbStop;
+		else if ( 2 == (num % 1000))
+			m_NotFitBehaviour = enfbWarn;
+		else 
+			m_NotFitBehaviour = enfbToOversized;
+	}
+	else
+	{
+		m_FileDispositionStrategy = efdsMaxFit;
+		m_NotFitBehaviour = enfbStop;
+	}
     return TRUE;
 }
 
@@ -1522,6 +1554,25 @@ BOOL CHardLinkDlg::SaveConfiguration()
     }
     SaveValue(_T("SplitSizeList"), cs);
 
+	CString FileDisposition;
+	{
+		int NotFitBehaviour = 3;
+		switch (m_NotFitBehaviour)
+		{
+		case enfbStop:
+			NotFitBehaviour = 1;
+			break;
+		case enfbWarn:
+			NotFitBehaviour = 2;
+			break;
+		case enfbToOversized:
+			NotFitBehaviour = 3;
+			break;
+		}
+		int Strategy = m_FileDispositionStrategy == efdsLogical? 1 : 2;
+		FileDisposition.Format(_T("%d"), Strategy*1000 + NotFitBehaviour);
+	}
+	SaveValue(_T("FileDisposition"), FileDisposition);
     return TRUE;
 }
 
